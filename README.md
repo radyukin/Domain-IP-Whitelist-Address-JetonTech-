@@ -1,3 +1,108 @@
+# 🌐 Jeton Routing Whitelist
+
+Коллекция оптимизированных списков доменов и IP-адресов для выборочной маршрутизации (Split Tunneling, VPN Policy Routing, Bypass) через **Keenetic**, **sing-box**, **Xray / v2ray**, **OpenWrt**, **Amnezia**, **Clash** и **AdGuard Home**.
+
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Format](https://img.shields.io/badge/format-TXT%20%7C%20CIDR%20%7C%20FQDN-informational)](#-файлы-репозитория)
+[![Maintained](https://img.shields.io/badge/status-active-success.svg)](#)
+
+---
+
+## 💡 Особенности и философия сборки
+
+Главная проблема большинства публичных списков маршрутизации — **замедление загрузки игр и высокий пинг**. Когда в VPN-списки попадают общие CDN (Akamai, Fastly, AWS) или игровые сервисы, Steam и лаунчеры начинают выкачивать гигабайты патчей через узкий канал VPN-сервера, забивая трафик и вызывая лаги.
+
+**В этой сборке реализован принцип «Умного разделения»:**
+
+* ✅ **Только нужные сервисы:** полный доступ к зарубежным нейросетям (AI), заблокированным соцсетям, медиа-сервисам, трекерам и рабочим инструментам.
+* ⚡ **Максимальная скорость в Steam и играх:** из списков **полностью исключены** Steam, Discord, лаунчеры (Blizzard, Epic Games, Roblox, Xbox, PSN), а также магистральные CDN (**Akamai**, **Fastly**, **AWS_eu-us**). 
+* 🚀 Все загрузки игр идут напрямую через вашего провайдера на полной скорости тарифа и с минимальным локальным пингом.
+
+---
+
+## 📂 Файлы репозитория
+
+| Файл | Описание | Формат | Количество записей |
+| :--- | :--- | :---: | :---: |
+| **`Domain_Whitelist_Jeton.txt`** | Домены сервисов для DNS-маршрутизации и прокси-клиентов | FQDN / Домены | **~850+** доменов |
+| **`IP_Whitelist_Jeton.txt`** | Диапазоны IP-адресов для таблиц маршрутизации (L3/PBR) | IPv4 CIDR | **~2 300+** подсетей |
+
+---
+
+## 🧩 Включённые категории сервисов
+
+### 1. 🤖 Искусственный Интеллект (AI Tools)
+* **OpenAI (ChatGPT):** `chatgpt.com`, `oaistatic.com`, `oaiusercontent.com`, API и IP-шлюзы.
+* **Anthropic (Claude):** `claude.ai`, `anthropic.com`, CDN и API-эндпоинты.
+* **Google Gemini:** `gemini.google.com`, `generativeai.google`, сервисы Google AI.
+* **Microsoft Copilot:** `copilot.microsoft.com`, инфраструктура Microsoft AI.
+* **DeepSeek, Perplexity, xAI (Grok):** веб-интерфейсы, auth-провайдеры и API.
+
+### 2. 💬 Мессенджеры и Соцсети
+* **Meta:** Instagram, Facebook, Meta платформы.
+* **X (бывший Twitter):** `x.com`, `twitter.com`, `twimg.com`.
+* **Мессенджеры:** Telegram, WhatsApp, Signal, Snapchat, Viber.
+* **Видеоплатформы:** TikTok.
+
+### 3. 🎬 Стриминг, Кино и Торренты
+* **Видео:** YouTube, Netflix.
+* **Онлайн-кинотеатры и парсеры:** HDRezka, Lampa, LostFilm.
+* **Торрент-трекеры:** RuTracker, NNM-Club, Rutor.
+* **Музыка:** Spotify, Deezer, Tidal, SoundCloud.
+* **Стриминг:** Twitch.
+
+### 4. 💼 Работа, Разработка и Инструменты
+* **Инструменты:** Notion, Figma, Miro, Canva, Zoom.
+* **Разработка:** GitHub, Google APIs, Google Meet/Maps, Hetzner, Cloudflare.
+* **Финансы и крипта:** Stripe, PayPal, Binance, BestChange.
+* **Почта и приватность:** ProtonMail, Tor Project.
+
+---
+
+## 🚫 Что намеренно ИСКЛЮЧЕНО (Direct Connection)
+
+Следующие сервисы **не включены** в списки и всегда идут напрямую через вашего интернет-провайдера:
+1. **Steam (Valve)** — загрузка игр, обновления, магазин и комьюнити идут на максимальной скорости вашего тарифа.
+2. **Discord** — исключён в соответствии с пользовательской конфигурацией.
+3. **Игровые платформы:** Battle.net (Blizzard), Epic Games Store, Roblox, Sony PlayStation Network, Xbox / Call of Duty Warzone.
+4. **Магистральные CDN (Akamai, Fastly, AWS subnets):** исключены, чтобы фоновые загрузки кэш-серверов не забивали VPN-туннель.
+
+---
+
+## 🛠️ Инструкции по настройке
+
+### 1. Keenetic (KeeneticOS)
+* **Доменный список:** 
+  Перейдите в веб-интерфейс Keenetic -> *Сетевые правила* -> *Маршрутизация* -> *Политики маршрутизации* -> выберите политику для VPN -> добавьте домены из `Domain_Whitelist_Jeton.txt` в список исключений / доменных имен.
+* **IP-список:**
+  Импортируйте подсети из `IP_Whitelist_Jeton.txt` в созданную политику маршрутизации для автоматического перенаправления трафика через выбранный VPN-интерфейс.
+
+### 2. sing-box / Xray / v2ray / Clash
+* Для **sing-box**: преобразуйте домены в правило `domain_suffix` или используйте Rule Set:
+  ```json
+  {
+    "type": "field",
+    "domain": [ "ext:Domain_Whitelist_Jeton.txt" ],
+    "outbound": "proxy-out"
+  }
+  ```
+* Для **IP-маршрутизации**: используйте блок `ipcidr` с содержимым `IP_Whitelist_Jeton.txt`.
+
+### 3. OpenWrt (Passwall / OpenClash / vssr / dnsmasq-ipset)
+* Загрузите `Domain_Whitelist_Jeton.txt` в список *Whitelist Domains / GFWList custom*.
+* Загрузите `IP_Whitelist_Jeton.txt` в кастомный IP-set для интерфейса прокси/VPN.
+
+---
+
+## 🔄 Структура и формат файлов
+
+* Все файлы используют стандартную кодировку **UTF-8 (без BOM)** с окончаниями строк LF/CRLF.
+* Комментарии и названия разделов начинаются с символа `#`.
+* Каждая строка содержит ровно один домен или одну IPv4-подсеть в нотации CIDR (например, `104.16.0.0/13`).
+* Отсутствуют дубликаты, битые записи и мусорные символы.
+
+---
+
 **VPN-функционал на роутерах Jeton Tech**
 
 
